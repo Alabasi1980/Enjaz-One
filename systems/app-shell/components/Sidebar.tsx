@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { LayoutGrid, CheckSquare, Building2, FolderOpen, BookOpen, Box, HardHat, ChevronRight, UserCircle, LogOut } from 'lucide-react';
-import { User } from '@shared/types';
+import { User } from '../../../shared/types';
 
 type View = 'dashboard' | 'workitems' | 'approvals' | 'projects' | 'field-ops' | 'project-detail' | 'documents' | 'knowledge' | 'assets' | 'settings' | 'profile';
 

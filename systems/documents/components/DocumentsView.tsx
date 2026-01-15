@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Document, Project } from '../../../shared/types';
 import { documentsRepo } from '../../../shared/services/documentsRepo';

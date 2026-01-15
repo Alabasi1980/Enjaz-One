@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Document } from '../../../shared/types';
 import { FileText, Download, Trash2, Sparkles, MapPin, ShieldCheck, FileSpreadsheet, FileCode } from 'lucide-react';

@@ -1,10 +1,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { workItemsRepo } from '../services/workItemsRepo';
-import { projectsRepo } from '../services/projectsRepo';
-import { usersRepo } from '../services/usersRepo';
-import { notificationsRepo } from '../services/notificationsRepo';
-import { WorkItem, Project, User, Notification, Status } from '../types';
+import { workItemsRepo } from '../../services/workItemsRepo';
+import { projectsRepo } from '../../services/projectsRepo';
+import { usersRepo } from '../../services/usersRepo';
+import { notificationsRepo } from '../../services/notificationsRepo';
+import { WorkItem, Project, User, Notification, Status } from '../../types';
 
 export const useEnjazCore = () => {
   const [workItems, setWorkItems] = useState<WorkItem[]>([]);

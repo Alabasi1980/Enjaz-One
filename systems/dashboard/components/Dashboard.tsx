@@ -1,9 +1,8 @@
-
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { WorkItem, Status, Priority } from '@shared/types';
+import { WorkItem, Status, Priority } from '../../../shared/types';
 import { FileText, AlertTriangle, Clock, ShieldCheck } from 'lucide-react';
-import StatCard from '@shared/ui/StatCard';
+import StatCard from '../../../shared/ui/StatCard';
 
 interface DashboardProps {
   items: WorkItem[];

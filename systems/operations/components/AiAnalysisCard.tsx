@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { WorkItem } from '@shared/types';
-import { analyzeWorkItem } from '@shared/services/geminiService';
+import { WorkItem } from '../../../shared/types';
+import { analyzeWorkItem } from '../../../shared/services/geminiService';
 import { Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 

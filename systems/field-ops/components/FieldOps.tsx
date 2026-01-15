@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { WorkItem, WorkItemType, Priority, Status, Project } from '@shared/types';
+import { WorkItem, WorkItemType, Priority, Status, Project } from '../../../shared/types';
 import { fieldOpsRepo } from '../services/fieldOpsRepo';
 import { GoogleGenAI } from "@google/genai";
 import { 
@@ -228,7 +227,7 @@ const FieldOps: React.FC<FieldOpsProps> = ({ projects, onSubmit }) => {
            <div>
              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">التفاصيل</label>
              <textarea 
-               className="w-full mt-1.5 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold h-32 resize-none outline-none focus:ring-2 focus:ring-blue-500"
+               className="w-full mt-1.5 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold h-32 resize-none outline-none focus:ring-2 focus:ring-blue-500"
                placeholder="اشرح ما حدث بالتفصيل..."
                value={description}
                onChange={e => setDescription(e.target.value)}

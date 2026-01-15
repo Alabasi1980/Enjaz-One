@@ -1,7 +1,6 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Menu, Plus, Bell, Settings } from 'lucide-react';
-import { Notification } from '@shared/types';
+import { Notification } from '../../../shared/types';
 
 type View = 'dashboard' | 'workitems' | 'approvals' | 'projects' | 'field-ops' | 'project-detail' | 'documents' | 'knowledge' | 'assets' | 'settings' | 'profile';
 

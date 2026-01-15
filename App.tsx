@@ -1,23 +1,22 @@
-
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// System-Based Architecture Imports using Aliases
-import { Sidebar, Header } from '@systems/app-shell';
-import { Dashboard } from '@systems/dashboard';
-import { SettingsView } from '@systems/settings';
-import { ProfileView } from '@systems/profile';
-import { WorkItemList, WorkItemDetail, CreateWorkItemModal, ApprovalsView } from '@systems/operations';
-import { ProjectsListView, ProjectDetail } from '@systems/projects';
-import { DocumentsView } from '@systems/documents';
-import { KnowledgeBase } from '@systems/knowledge';
-import { AssetsView } from '@systems/assets';
-import { FieldOps } from '@systems/field-ops';
+// System-Based Architecture Imports
+import { Sidebar, Header } from './systems/app-shell';
+import { Dashboard } from './systems/dashboard';
+import { SettingsView } from './systems/settings';
+import { ProfileView } from './systems/profile';
+import { WorkItemList, WorkItemDetail, CreateWorkItemModal, ApprovalsView } from './systems/operations';
+import { ProjectsListView, ProjectDetail } from './systems/projects';
+import { DocumentsView } from './systems/documents';
+import { KnowledgeBase } from './systems/knowledge';
+import { AssetsView } from './systems/assets';
+import { FieldOps } from './systems/field-ops';
 
-// Shared using Aliases
-import { useEnjazCore } from '@shared/hooks/useEnjazCore';
-import { WorkItem, Project } from '@shared/types';
-import { workItemsRepo } from '@shared/services/workItemsRepo';
+// Shared
+import { useEnjazCore } from './shared/hooks/useEnjazCore';
+import { WorkItem, Project } from './shared/types';
+import { workItemsRepo } from './shared/services/workItemsRepo';
 
 type View = 'dashboard' | 'workitems' | 'approvals' | 'projects' | 'field-ops' | 'project-detail' | 'documents' | 'knowledge' | 'assets' | 'settings' | 'profile';
 

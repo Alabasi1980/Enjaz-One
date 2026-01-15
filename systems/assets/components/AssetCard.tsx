@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Asset, AssetStatus, AssetCategory } from '../../../shared/types';
 import { Truck, Monitor, Wrench, Box, MapPin, User, Sparkles, MoreVertical } from 'lucide-react';
