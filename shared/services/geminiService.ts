@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { WorkItem } from "../types";
+import { WorkItem, NotificationPriority, NotificationCategory } from "../types";
 
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
@@ -118,5 +118,56 @@ export const generateExecutiveBrief = async (
     return response.text || "No insights generated.";
   } catch (error) {
     return "Error generating brief.";
+  }
+};
+
+/**
+ * Analyzes notification content to determine priority and category.
+ */
+export const analyzeNotification = async (
+  title: string, 
+  message: string
+): Promise<{ priority: NotificationPriority, category: NotificationCategory, summary?: string }> => {
+  const ai = getAiClient();
+  // Default values if AI fails or key missing
+  const defaultResult: { priority: NotificationPriority, category: NotificationCategory } = { 
+    priority: 'normal', 
+    category: 'system' 
+  };
+
+  if (!ai) return defaultResult;
+
+  const prompt = `
+    Analyze this notification for a construction management app.
+    Title: "${title}"
+    Message: "${message}"
+
+    Determine:
+    1. Priority: (critical, high, normal, low) based on urgency/safety/budget keywords.
+    2. Category: (approval, task, security, mention, system).
+    3. Summary: A very short 5-word summary (Arabic).
+
+    Output JSON only: {"priority": "...", "category": "...", "summary": "..."}
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: { responseMimeType: 'application/json' }
+    });
+    
+    const text = response.text;
+    if (!text) return defaultResult;
+    
+    const data = JSON.parse(text);
+    return {
+      priority: (data.priority || 'normal').toLowerCase(),
+      category: (data.category || 'system').toLowerCase(),
+      summary: data.summary
+    };
+  } catch (error) {
+    console.warn("AI Notification Analysis Failed:", error);
+    return defaultResult;
   }
 };

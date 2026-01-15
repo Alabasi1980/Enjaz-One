@@ -1,3 +1,4 @@
+
 export enum ProjectStatus {
   PLANNING = 'Planning',
   ACTIVE = 'Active',
@@ -117,15 +118,39 @@ export interface Comment {
   isSystem?: boolean;
 }
 
+export type NotificationPriority = 'critical' | 'high' | 'normal' | 'low';
+export type NotificationCategory = 'system' | 'task' | 'approval' | 'security' | 'mention';
+
 export interface Notification {
   id: string;
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'success' | 'error';
+  type: 'info' | 'warning' | 'success' | 'error'; // Visual style
+  priority: NotificationPriority; // AI determined importance
+  category: NotificationCategory;
   isRead: boolean;
   createdAt: string;
   relatedItemId?: string;
+  aiSummary?: string; // Short AI summary for dense notifications
+}
+
+export interface NotificationChannelConfig {
+  email: boolean;
+  inApp: boolean;
+  push: boolean;
+}
+
+export interface NotificationPreferences {
+  userId: string;
+  dndEnabled: boolean;
+  dndStartTime: string; // HH:mm
+  dndEndTime: string; // HH:mm
+  channels: {
+    critical: NotificationChannelConfig;
+    mentions: NotificationChannelConfig;
+    updates: NotificationChannelConfig;
+  }
 }
 
 export interface Subtask {
