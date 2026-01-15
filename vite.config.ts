@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@shared': '/shared',
-        '@systems': '/systems'
+        '@shared/': '/shared/',
+        '@systems/': '/systems/'
       }
     }
   };
