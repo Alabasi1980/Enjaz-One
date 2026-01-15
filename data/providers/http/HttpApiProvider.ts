@@ -1,9 +1,3 @@
-/**
- * @class HttpApiProvider
- * @description 
- * تنفيذ الجسر البرمجي للربط مع API حقيقي. 
- * تم إضافة كافة عمليات CRUD لضمان التوافق مع متطلبات السيرفر.
- */
 import { IDataProvider, IWorkItemRepository, IProjectRepository, IUserRepository, INotificationRepository, IAiService, IAssetRepository, IDocumentRepository, IKnowledgeRepository, IFieldOpsRepository } from '../../contracts';
 import { WorkItemMapper, WorkItemDTO } from '../../mappers/WorkItemMapper';
 import { ProjectMapper } from '../../mappers/ProjectMapper';
@@ -17,29 +11,15 @@ import { WorkItem, Status } from '../../../shared/types';
 export class HttpApiProvider implements IDataProvider {
   
   workItems: IWorkItemRepository = {
-    // 1. جلب الكل
     getAll: async () => (await httpClient.get<WorkItemDTO[]>('/work-items')).map(WorkItemMapper.toDomain),
-    
-    // 2. جلب عنصر واحد (المطلوب للتفاصيل)
     getById: async (id) => WorkItemMapper.toDomain(await httpClient.get<WorkItemDTO>(`/work-items/${id}`)),
-    
-    // 3. إنشاء
     create: async (item) => WorkItemMapper.toDomain(await httpClient.post<WorkItemDTO>('/work-items', WorkItemMapper.toDTO(item))),
-    
-    // 4. تحديث كلي (PUT)
     update: async (id, updates) => WorkItemMapper.toDomain(await httpClient.put<WorkItemDTO>(`/work-items/${id}`, WorkItemMapper.toDTO(updates))),
-    
-    // 5. تحديث جزئي للحالة (PATCH)
     updateStatus: async (id, status) => WorkItemMapper.toDomain(await httpClient.patch<WorkItemDTO>(`/work-items/${id}/status`, { status })),
-    
-    // 6. إضافة تعليق
     addComment: async (itemId, comment) => WorkItemMapper.toDomain(await httpClient.post<WorkItemDTO>(`/work-items/${itemId}/comments`, comment)),
-    
-    // 7. اتخاذ قرار اعتماد
     submitApprovalDecision: async (itemId, stepId, decision, comments) => WorkItemMapper.toDomain(await httpClient.post<WorkItemDTO>(`/work-items/${itemId}/approvals/${stepId}`, { decision, comments })),
   };
 
-  // باقي الريبوزيتوريز تتبع نفس النمط...
   projects: IProjectRepository = {
     getAll: async () => (await httpClient.get<any[]>('/projects')).map(ProjectMapper.toDomain),
     getById: async (id) => ProjectMapper.toDomain(await httpClient.get<any>(`/projects/${id}`)),
