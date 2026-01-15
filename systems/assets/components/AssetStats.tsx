@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Asset, AssetStatus } from '../../../shared/types';
 import { Database, Activity, DollarSign, AlertCircle } from 'lucide-react';
