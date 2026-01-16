@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { WorkItem, Priority, Status, Project, User, ApprovalDecision, Comment, Subtask } from '../../shared/types';
 import { useData } from '../../context/DataContext';
+import { useToast } from '../../shared/ui/ToastProvider';
 import { X, Clock, User as UserIcon, MapPin, EyeOff, Lock, RefreshCcw, Briefcase } from 'lucide-react';
 
 // Sub-components
@@ -22,6 +23,7 @@ interface WorkItemDetailProps {
 
 const WorkItemDetail: React.FC<WorkItemDetailProps> = ({ item, project, assignee, currentUser, onClose, onUpdateStatus, onRefresh }) => {
   const data = useData();
+  const { showToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [subtasks, setSubtasks] = useState<Subtask[]>(item.subtasks || []);
   
@@ -33,17 +35,22 @@ const WorkItemDetail: React.FC<WorkItemDetailProps> = ({ item, project, assignee
 
   const handleApprovalDecision = async (stepId: string, decision: ApprovalDecision, comment: string) => {
     if(!comment && decision === ApprovalDecision.REJECTED) {
-      alert("يرجى ذكر سبب الرفض في التعليقات لضمان توثيق الحالة.");
+      showToast("يرجى ذكر سبب الرفض في التعليقات لضمان توثيق الحالة.", "info");
       return;
     }
     setSubmitting(true);
     try {
       await data.workItems.submitApprovalDecision(item.id, stepId, decision, comment);
+      showToast("تم تسجيل قرارك بنجاح.", "success");
       onRefresh(); 
       onClose(); 
-    } catch (e) {
-      console.error(e);
-      alert("حدث خطأ أثناء معالجة الطلب.");
+    } catch (e: any) {
+      if (e.message === "CONFLICT_DETECTED") {
+        showToast("حدث تعارض! قام شخص آخر بتحديث البيانات للتو. سيتم تحديث الصفحة.", "error");
+      } else {
+        showToast("عذراً، فشل معالجة طلب الاعتماد.", "error");
+      }
+      onRefresh();
     } finally {
       setSubmitting(false);
     }
@@ -63,9 +70,12 @@ const WorkItemDetail: React.FC<WorkItemDetailProps> = ({ item, project, assignee
            status: Status.PENDING_APPROVAL,
            approvalChain: resetChain
        });
+       showToast("تمت إعادة تقديم الطلب للمراجعة.", "success");
        onRefresh();
        onClose();
-    } catch(e) { console.error(e); } finally { setSubmitting(false); }
+    } catch(e) { 
+      showToast("فشل إعادة التقديم.", "error");
+    } finally { setSubmitting(false); }
   };
 
   const handlePostComment = async (text: string) => {
@@ -78,13 +88,22 @@ const WorkItemDetail: React.FC<WorkItemDetailProps> = ({ item, project, assignee
       userAvatar: currentUser.avatar,
       timestamp: new Date().toISOString()
     };
-    await data.workItems.addComment(item.id, comment);
-    onRefresh();
+    try {
+      await data.workItems.addComment(item.id, comment);
+      showToast("تم إضافة التعليق.", "success");
+      onRefresh();
+    } catch (e) {
+      showToast("فشل إضافة التعليق.", "error");
+    }
   };
 
   const handleUpdateSubtasks = async (newSubtasks: Subtask[]) => {
     setSubtasks(newSubtasks);
-    await data.workItems.update(item.id, { subtasks: newSubtasks });
+    try {
+      await data.workItems.update(item.id, { subtasks: newSubtasks });
+    } catch (e) {
+      showToast("فشل تحديث قائمة الفحص.", "error");
+    }
     onRefresh();
   };
 

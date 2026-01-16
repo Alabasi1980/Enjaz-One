@@ -1,3 +1,4 @@
+
 import { WorkItem, Status, Priority } from '../../shared/types';
 
 export interface WorkItemDTO {
@@ -11,6 +12,9 @@ export interface WorkItemDTO {
   assigneeId?: string;
   creatorId?: string;
   createdAt: string;
+  // Added missing fields from API
+  updatedAt: string;
+  version: number;
   dueDate: string;
   tags?: string[];
   comments?: any[];
@@ -35,6 +39,9 @@ export class WorkItemMapper {
       assigneeId: dto.assigneeId,
       creatorId: dto.creatorId,
       createdAt: dto.createdAt,
+      // Fixed: Mapped version and updatedAt
+      updatedAt: dto.updatedAt || dto.createdAt,
+      version: dto.version || 1,
       dueDate: dto.dueDate,
       tags: dto.tags || [],
       comments: dto.comments || [],
@@ -55,6 +62,9 @@ export class WorkItemMapper {
       assigneeId: domain.assigneeId,
       creatorId: domain.creatorId,
       createdAt: domain.createdAt,
+      // Fixed: Mapped version and updatedAt in DTO as well
+      updatedAt: domain.updatedAt,
+      version: domain.version,
       // Fix: Corrected property name from due_date to dueDate to match WorkItemDTO interface
       dueDate: domain.dueDate,
       tags: domain.tags

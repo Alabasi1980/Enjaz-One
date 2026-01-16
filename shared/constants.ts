@@ -1,3 +1,4 @@
+
 import { Priority, Project, Status, User, WorkItem, WorkItemType, Article, Asset, AssetCategory, AssetStatus, ProjectStatus, ProjectHealth } from "./types";
 
 export const MOCK_PROJECTS: Project[] = [
@@ -14,6 +15,9 @@ export const MOCK_PROJECTS: Project[] = [
     endDate: '2024-06-30',
     managerId: 'U001',
     teamIds: ['U001', 'U002', 'U003'],
+    // Added missing properties version and updatedAt
+    version: 1,
+    updatedAt: '2023-10-25T12:00:00Z',
     milestones: [
       { id: 'm1', title: 'Excavation & Shoring', dueDate: '2023-03-01', status: 'Completed', progress: 100 },
       { id: 'm2', title: 'Foundations', dueDate: '2023-08-15', status: 'Completed', progress: 100 },
@@ -33,6 +37,9 @@ export const MOCK_PROJECTS: Project[] = [
     endDate: '2024-03-10',
     managerId: 'U001',
     teamIds: ['U001', 'U003'],
+    // Added missing properties version and updatedAt
+    version: 1,
+    updatedAt: '2023-10-25T12:00:00Z',
     milestones: [
       { id: 'm1', title: 'Structure', dueDate: '2023-11-01', status: 'In Progress', progress: 90 },
       { id: 'm2', title: 'MEP Installation', dueDate: '2024-01-20', status: 'Pending', progress: 10 },
@@ -50,7 +57,10 @@ export const MOCK_PROJECTS: Project[] = [
     startDate: '2024-01-01',
     endDate: '2025-12-31',
     managerId: 'U003',
-    teamIds: ['U003', 'U002']
+    teamIds: ['U003', 'U002'],
+    // Added missing properties version and updatedAt
+    version: 1,
+    updatedAt: '2024-01-01T08:00:00Z'
   },
 ];
 
@@ -125,6 +135,9 @@ export const MOCK_WORK_ITEMS: WorkItem[] = [
     projectId: 'P001',
     assigneeId: 'U001',
     createdAt: '2023-10-25',
+    // Added missing properties updatedAt and version
+    updatedAt: '2023-10-25T14:30:00Z',
+    version: 1,
     dueDate: '2023-10-28',
     comments: [],
     tags: ['Permits', 'Civil']

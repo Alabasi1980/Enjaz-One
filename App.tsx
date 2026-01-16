@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Loader2, AlertCircle, X } from 'lucide-react';
+import { Loader2, AlertCircle, X, RefreshCw } from 'lucide-react';
 
 // Data Layer
 import { DataProvider, useData } from './context/DataContext';
@@ -14,14 +15,21 @@ import { ProjectsListView, ProjectDetail } from './systems/projects';
 import { DocumentsView } from './systems/documents';
 import { KnowledgeBase } from './systems/knowledge';
 import { AssetsView } from './systems/assets';
+import { InventoryView } from './systems/inventory';
+import { CostControlView } from './systems/finance';
+import { ProcurementView } from './systems/procurement'; 
+import { HRDashboard, PayrollView } from './systems/hr';
 import { FieldOps } from './systems/field-ops';
 import { LoginView, MfaVerification, authService } from './systems/auth';
+import { CeoDashboard } from './systems/ceo-board'; 
 
 // Shared
 import { useEnjazCore } from './shared/hooks/useEnjazCore';
 import { WorkItem, Project, User } from './shared/types';
+import { ErrorBoundary } from './shared/ui/ErrorBoundary';
+import { ToastProvider } from './shared/ui/ToastProvider';
 
-type View = 'dashboard' | 'workitems' | 'approvals' | 'projects' | 'field-ops' | 'project-detail' | 'documents' | 'knowledge' | 'assets' | 'settings' | 'profile';
+type View = 'dashboard' | 'ceo-board' | 'workitems' | 'approvals' | 'projects' | 'field-ops' | 'project-detail' | 'documents' | 'knowledge' | 'assets' | 'inventory' | 'finance' | 'procurement' | 'hr' | 'payroll' | 'settings' | 'profile';
 type AuthState = 'LOGIN' | 'MFA' | 'AUTHENTICATED';
 
 function AppContent() {
@@ -55,12 +63,12 @@ function AppContent() {
     setAuthState('MFA');
   };
 
-  const handleMfaVerified = () => {
+  const handleMfaVerified = async () => {
     if (authUser) {
       authService.createSession(authUser);
-      data.users.setCurrentUser(authUser.id);
+      await data.users.setCurrentUser(authUser.id);
       setAuthState('AUTHENTICATED');
-      loadAllData(true);
+      await loadAllData(true);
     }
   };
 
@@ -88,13 +96,27 @@ function AppContent() {
     return <MfaVerification user={authUser} onVerified={handleMfaVerified} onCancel={handleLogout} />;
   }
 
+  // شاشة التحميل مع خيار إعادة المحاولة لتجنب التعليق
   if (isDataLoading) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-6">
-        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-        <div className="text-center">
-          <p className="text-white font-black tracking-widest text-xs">ENJAZ ONE CORE</p>
-          <p className="text-slate-500 text-[10px] font-bold mt-1">جاري تحميل البيانات المشفرة...</p>
+        <div className="relative">
+           <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+           <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
+           </div>
+        </div>
+        <div className="text-center space-y-4">
+          <div>
+             <p className="text-white font-black tracking-widest text-xs">ENJAZ ONE CORE</p>
+             <p className="text-slate-500 text-[10px] font-bold mt-1">جاري تأمين مزامنة البيانات...</p>
+          </div>
+          <button 
+             onClick={() => window.location.reload()}
+             className="px-6 py-2 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 mx-auto"
+          >
+             <RefreshCw size={12}/> إعادة محاولة الاتصال
+          </button>
         </div>
       </div>
     );
@@ -114,66 +136,78 @@ function AppContent() {
         </div>
       )}
 
-      <Sidebar 
-        currentView={currentView} 
-        setCurrentView={setCurrentView as any}
-        isSidebarOpen={isSidebarOpen} 
-        setIsSidebarOpen={setIsSidebarOpen}
-        isCollapsed={isCollapsed}
-        setIsCollapsed={setIsCollapsed}
-        currentUser={currentUser} 
-        users={users}
-        pendingCount={workItems.filter(i => i.status === 'Pending Approval').length}
-        onSwitchUser={(id) => { handleSwitchUser(id); }}
-      />
-
-      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden transition-all duration-300 ease-in-out`}>
-        <Header 
+      <ErrorBoundary name="Sidebar Navigation">
+        <Sidebar 
           currentView={currentView} 
           setCurrentView={setCurrentView as any}
-          setIsSidebarOpen={setIsSidebarOpen} 
-          onOpenCreateModal={() => setIsCreateModalOpen(true)}
-          notifications={notifications} 
-          unreadCount={notifications.filter(n => !n.isRead).length}
-          onNotificationClick={(n) => { 
-            if(n.relatedItemId) {
-              const item = workItems.find(i => i.id === n.relatedItemId);
-              if(item) setSelectedItem(item);
-            }
-          }}
-          onMarkAllRead={markAllNotifsRead}
-          projectTitle={currentView === 'project-detail' ? selectedProject?.name : undefined}
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          currentUser={currentUser} 
+          users={users}
+          pendingCount={workItems.filter(i => i.status === 'Pending Approval').length}
+          onSwitchUser={(id) => { handleSwitchUser(id); }}
         />
+      </ErrorBoundary>
+
+      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden transition-all duration-300 ease-in-out`}>
+        <ErrorBoundary name="Global Header">
+          <Header 
+            currentView={currentView} 
+            setCurrentView={setCurrentView as any}
+            setIsSidebarOpen={setIsSidebarOpen} 
+            onOpenCreateModal={() => setIsCreateModalOpen(true)}
+            notifications={notifications} 
+            unreadCount={notifications.filter(n => !n.isRead).length}
+            onNotificationClick={(n) => { 
+              if(n.relatedItemId) {
+                const item = workItems.find(i => i.id === n.relatedItemId);
+                if(item) setSelectedItem(item);
+              }
+            }}
+            onMarkAllRead={markAllNotifsRead}
+            projectTitle={currentView === 'project-detail' ? selectedProject?.name : undefined}
+          />
+        </ErrorBoundary>
 
         <div className="flex-1 p-4 lg:p-6 overflow-y-auto no-scrollbar pb-24">
-          {currentView === 'dashboard' && <Dashboard items={workItems} projects={projects} users={users} />}
-          {currentView === 'workitems' && <WorkItemList items={workItems} onItemClick={setSelectedItem} />}
-          {currentView === 'approvals' && <ApprovalsView items={workItems} currentUser={currentUser} onItemClick={setSelectedItem} />}
-          {currentView === 'projects' && (
-            <ProjectsListView 
-              projects={projects} 
-              workItems={workItems} 
-              onSelectProject={(p) => { setSelectedProject(p); setCurrentView('project-detail'); }} 
-              onCreateProject={() => setIsCreateModalOpen(true)} 
-            />
-          )}
-          {currentView === 'project-detail' && selectedProject && (
-            <ProjectDetail 
-              project={selectedProject} 
-              items={workItems.filter(i => i.projectId === selectedProject.id)} 
-              onBack={() => setCurrentView('projects')} 
-              onItemClick={setSelectedItem} 
-              onNavigate={setCurrentView as any} 
-            />
-          )}
-          {currentView === 'documents' && <DocumentsView projects={projects} />}
-          {currentView === 'knowledge' && <KnowledgeBase />}
-          {currentView === 'assets' && <AssetsView />}
-          {currentView === 'field-ops' && <FieldOps projects={projects} onSubmit={handleCreateWorkItem} />}
-          {currentView === 'settings' && <SettingsView />}
-          {currentView === 'profile' && currentUser && (
-            <ProfileView user={currentUser} onNavigate={setCurrentView as any} onItemClick={setSelectedItem} />
-          )}
+          <ErrorBoundary name={currentView}>
+            {currentView === 'dashboard' && <Dashboard items={workItems} projects={projects} users={users} />}
+            {currentView === 'ceo-board' && <CeoDashboard />}
+            {currentView === 'workitems' && <WorkItemList items={workItems} onItemClick={setSelectedItem} />}
+            {currentView === 'approvals' && <ApprovalsView items={workItems} currentUser={currentUser} onItemClick={setSelectedItem} />}
+            {currentView === 'projects' && (
+              <ProjectsListView 
+                projects={projects} 
+                workItems={workItems} 
+                onSelectProject={(p) => { setSelectedProject(p); setCurrentView('project-detail'); }} 
+                onCreateProject={() => setIsCreateModalOpen(true)} 
+              />
+            )}
+            {currentView === 'project-detail' && selectedProject && (
+              <ProjectDetail 
+                project={selectedProject} 
+                items={workItems.filter(i => i.projectId === selectedProject.id)} 
+                onBack={() => setCurrentView('projects')} 
+                onItemClick={setSelectedItem} 
+                onNavigate={setCurrentView as any} 
+              />
+            )}
+            {currentView === 'documents' && <DocumentsView projects={projects} />}
+            {currentView === 'knowledge' && <KnowledgeBase />}
+            {currentView === 'assets' && <AssetsView />}
+            {currentView === 'inventory' && <InventoryView />}
+            {currentView === 'finance' && <CostControlView />}
+            {currentView === 'procurement' && <ProcurementView />}
+            {currentView === 'hr' && <HRDashboard />}
+            {currentView === 'payroll' && <PayrollView />}
+            {currentView === 'field-ops' && <FieldOps projects={projects} onSubmit={handleCreateWorkItem} />}
+            {currentView === 'settings' && <SettingsView />}
+            {currentView === 'profile' && currentUser && (
+              <ProfileView user={currentUser} onNavigate={setCurrentView as any} onItemClick={setSelectedItem} />
+            )}
+          </ErrorBoundary>
         </div>
       </div>
 
@@ -187,15 +221,17 @@ function AppContent() {
       />
 
       {selectedItem && (
-        <WorkItemDetail 
-          item={selectedItem} 
-          project={projects.find(p => p.id === selectedItem.projectId)} 
-          assignee={users.find(u => u.id === selectedItem.assigneeId)} 
-          currentUser={currentUser} 
-          onClose={() => setSelectedItem(null)} 
-          onUpdateStatus={handleStatusUpdate} 
-          onRefresh={loadAllData} 
-        />
+        <ErrorBoundary name="Work Item Detail">
+          <WorkItemDetail 
+            item={selectedItem} 
+            project={projects.find(p => p.id === selectedItem.projectId)} 
+            assignee={users.find(u => u.id === selectedItem.assigneeId)} 
+            currentUser={currentUser} 
+            onClose={() => setSelectedItem(null)} 
+            onUpdateStatus={handleStatusUpdate} 
+            onRefresh={loadAllData} 
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
@@ -204,7 +240,9 @@ function AppContent() {
 function App() {
   return (
     <DataProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </DataProvider>
   );
 }

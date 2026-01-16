@@ -6,8 +6,15 @@ import ProjectOverview from './components/ProjectOverview';
 import ProjectDocuments from './components/ProjectDocuments';
 import ProjectAssets from './components/ProjectAssets';
 import ProjectSettings from './components/ProjectSettings';
+import ClientPortalView from './components/ClientPortalView';
+import ConsultantPortalView from './components/ConsultantPortalView';
+import SubcontractorPortalView from './components/SubcontractorPortalView'; 
+import RegulatoryComplianceView from './components/RegulatoryComplianceView';
+import BondsAndInsuranceView from '../finance/components/BondsAndInsuranceView';
+import BlueprintCenter from './components/BlueprintCenter'; // New
+import { DailyLogView } from '../daily-log'; 
 import { useData } from '../../context/DataContext';
-import { Building2, MapPin, ArrowLeft, Settings, Calendar, ShieldCheck, Users, Mail, Phone, Plus, Trash2, X, Search, Check } from 'lucide-react';
+import { Building2, MapPin, ArrowLeft, Settings, Calendar, ShieldCheck, Users, Mail, Phone, Plus, Trash2, X, Search, Check, FileText, UserCircle, ShieldAlert, Briefcase, Landmark, Shield, Map as MapIcon } from 'lucide-react';
 
 interface ProjectDetailProps {
   project: Project;
@@ -19,7 +26,7 @@ interface ProjectDetailProps {
 
 const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, items, onBack, onItemClick, onNavigate }) => {
   const data = useData();
-  const [tab, setTab] = useState<'overview' | 'workitems' | 'docs' | 'assets' | 'team' | 'settings'>('overview');
+  const [tab, setTab] = useState<'overview' | 'workitems' | 'logs' | 'docs' | 'assets' | 'team' | 'settings' | 'client' | 'consultant' | 'sub' | 'regulatory' | 'finance' | 'blueprint'>('overview');
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -76,10 +83,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, items, onBack, o
     (u.name.toLowerCase().includes(memberSearchTerm.toLowerCase()) || u.role.toLowerCase().includes(memberSearchTerm.toLowerCase()))
   );
 
-  // Render logic remains mostly same
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] animate-fade-in space-y-6">
-      <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm relative overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 -mr-32 -mt-32 rounded-full blur-3xl"></div>
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
@@ -108,31 +114,25 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, items, onBack, o
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setTab('settings')}
-              className={`p-3 rounded-2xl transition-all shadow-sm ${tab === 'settings' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-            >
-               <Settings size={20} />
-            </button>
-            <button 
-              onClick={() => onNavigate('field-ops')}
-              className="px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-sm hover:scale-105 transition-transform shadow-lg shadow-slate-900/20"
-            >
-              Project Actions
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <PortalButton active={tab === 'client'} onClick={() => setTab('client')} icon={<UserCircle size={14}/>} label="المالك" color="bg-indigo-600" />
+            <PortalButton active={tab === 'consultant'} onClick={() => setTab('consultant')} icon={<ShieldCheck size={14}/>} label="الاستشاري" color="bg-blue-600" />
+            <PortalButton active={tab === 'sub'} onClick={() => setTab('sub')} icon={<Briefcase size={14}/>} label="المقاولين" color="bg-slate-900" />
+            <PortalButton active={tab === 'regulatory'} onClick={() => setTab('regulatory')} icon={<Landmark size={14}/>} label="الامتثال" color="bg-orange-600" />
+            <PortalButton active={tab === 'finance'} onClick={() => setTab('finance')} icon={<Shield size={14}/>} label="الضمانات" color="bg-emerald-600" />
           </div>
         </div>
       </div>
 
-      <div className="bg-white/50 p-1.5 rounded-3xl border border-slate-200 flex w-full md:w-fit self-center lg:self-start overflow-x-auto no-scrollbar">
+      <div className="bg-white/50 p-1.5 rounded-3xl border border-slate-200 flex w-full md:w-fit self-center lg:self-start overflow-x-auto no-scrollbar shrink-0">
          {[
            { id: 'overview', label: 'Overview', icon: ShieldCheck },
+           { id: 'blueprint', label: 'Digital Twin', icon: MapIcon }, // New
            { id: 'workitems', label: 'Operations', icon: Settings },
+           { id: 'logs', label: 'Daily Logs', icon: FileText },
            { id: 'docs', label: 'Documents', icon: Building2 },
            { id: 'assets', label: 'Assets', icon: Building2 },
            { id: 'team', label: 'Team', icon: Users },
-           { id: 'settings', label: 'Settings', icon: Settings }
          ].map((t) => (
            <button
              key={t.id}
@@ -152,14 +152,29 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, items, onBack, o
             project={project} 
             items={items} 
             onItemClick={onItemClick}
-            onSwitchTab={setTab}
+            onSwitchTab={setTab as any}
             onManageTeam={() => setTab('team')}
           />
         )}
+        {tab === 'blueprint' && (
+           <BlueprintCenter 
+             project={project} 
+             onPinClick={(id) => {
+                const item = items.find(i => i.id === id);
+                if (item) onItemClick(item);
+             }}
+           />
+        )}
         {tab === 'workitems' && <WorkItemList items={items} onItemClick={onItemClick} />}
+        {tab === 'logs' && <DailyLogView project={project} />}
         {tab === 'docs' && <ProjectDocuments project={project} />}
         {tab === 'assets' && <ProjectAssets />}
         {tab === 'settings' && <ProjectSettings project={project} onUpdate={loadTeam} />}
+        {tab === 'client' && <ClientPortalView project={project} onBack={() => setTab('overview')} />}
+        {tab === 'consultant' && <ConsultantPortalView project={project} onBack={() => setTab('overview')} />}
+        {tab === 'sub' && <SubcontractorPortalView project={project} onBack={() => setTab('overview')} />}
+        {tab === 'regulatory' && <RegulatoryComplianceView project={project} />}
+        {tab === 'finance' && <BondsAndInsuranceView project={project} />}
         {tab === 'team' && (
           <div className="space-y-6 animate-fade-in">
             <div className="flex justify-between items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
@@ -266,5 +281,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, items, onBack, o
     </div>
   );
 };
+
+const PortalButton = ({ active, onClick, icon, label, color }: any) => (
+  <button 
+    onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] transition-all whitespace-nowrap shadow-sm border ${
+      active ? `${color} text-white border-transparent` : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
+    }`}
+  >
+    {icon} {label}
+  </button>
+);
 
 export default ProjectDetail;

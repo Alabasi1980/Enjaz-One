@@ -1,3 +1,4 @@
+
 import { Project, ProjectStatus, ProjectHealth } from '../../shared/types';
 
 export interface ProjectDTO {
@@ -13,6 +14,9 @@ export interface ProjectDTO {
   endDate: string;
   managerId: string;
   teamIds: string[];
+  // Added missing fields from API
+  version: number;
+  updatedAt: string;
 }
 
 export class ProjectMapper {
@@ -30,6 +34,9 @@ export class ProjectMapper {
       endDate: dto.endDate,
       managerId: dto.managerId,
       teamIds: dto.teamIds || [],
+      // Fixed: Mapped version and updatedAt
+      version: dto.version || 1,
+      updatedAt: dto.updatedAt || dto.startDate,
       milestones: [] 
     };
   }
@@ -47,7 +54,10 @@ export class ProjectMapper {
       startDate: domain.startDate,
       endDate: domain.endDate,
       managerId: domain.managerId,
-      teamIds: domain.teamIds
+      teamIds: domain.teamIds,
+      // Fixed: Mapped version and updatedAt in DTO
+      version: domain.version,
+      updatedAt: domain.updatedAt
     };
   }
 }

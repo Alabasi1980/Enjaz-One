@@ -4,6 +4,8 @@
   --slate-dark: #0f172a;
   --slate-medium: #334155;
   --slate-light: #f1f5f9;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -15,29 +17,50 @@
   scrollbar-width: none;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
+.enjaz-card {
+  @apply bg-white border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 rounded-[2.5rem];
 }
 
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
+.glass-header {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
-.animate-scale-in {
-  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.ai-glow {
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.15);
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
 }
 
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes scan-y {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+.animate-scan-y {
+  animation: scan-y 2s linear infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  75% { transform: rotate(-10deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
 }

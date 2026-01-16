@@ -13,19 +13,23 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, colorClass, bgClass }) => (
-  <div className={`p-5 rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all group`}>
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{title}</p>
-        <h3 className="text-3xl font-extrabold text-slate-900">{value}</h3>
+  <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:shadow-blue-900/5 transition-all duration-500 group relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 opacity-50"></div>
+    <div className="relative z-10 flex flex-col h-full justify-between">
+      <div className="flex items-start justify-between">
+        <div className={`p-4 rounded-2xl ${bgClass} ${colorClass} shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+          {/* Fix: use any casting on cloneElement to allow injecting the size prop and ensure icon is a valid element */}
+          {React.isValidElement(icon) && React.cloneElement(icon as any, { size: 24 })}
+        </div>
         {trend && (
-          <p className={`text-[10px] mt-2 font-bold flex items-center gap-1 ${trend.isUpward ? 'text-green-600' : 'text-red-600'}`}>
-            {trend.isUpward ? '↑' : '↓'} {trend.value} <span className="text-slate-400 font-normal">vs last month</span>
-          </p>
+          <div className={`px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1 ${trend.isUpward ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+            {trend.isUpward ? '↑' : '↓'} {trend.value}
+          </div>
         )}
       </div>
-      <div className={`p-3 rounded-xl ${bgClass} ${colorClass} group-hover:scale-110 transition-transform`}>
-        {icon}
+      <div className="mt-6">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">{title}</p>
+        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{value}</h3>
       </div>
     </div>
   </div>
